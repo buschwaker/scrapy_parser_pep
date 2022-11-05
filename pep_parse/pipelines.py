@@ -22,11 +22,8 @@ class PepParsePipeline:
         }
 
     def process_item(self, item, spider):
-        if self.SEEN_STATUSES.get(item['status']) is not None:
-            self.SEEN_STATUSES[item['status']] += 1
-        else:
-            self.SEEN_STATUSES.update({item['status']: 1})
-        self.SEEN_STATUSES['Total'] += 1
+        status = item['status']
+        self.SEEN_STATUSES[status] = self.SEEN_STATUSES.get(status, 0) + 1
         return item
 
     def close_spider(self, spider):
@@ -36,6 +33,7 @@ class PepParsePipeline:
             f'status_summary_{time.strftime("%Y-%m-%d_%H-%M-%S")}.csv'
         )
         file_path = results_dir / filename
+        self.SEEN_STATUSES['Total'] = sum(self.SEEN_STATUSES.values())
         special_format_for_writing = [
             [
                 'Статус', 'Количество'
